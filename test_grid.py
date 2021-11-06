@@ -3,8 +3,8 @@ import numpy as np
 import matplotlib.pyplot  as plt 
 
 L = 128
-gstate = gillespie.grid_state(  np.array([1, 0.0,20.]), L , 420)
-gstate.freeze_site(L//2, L//2)#freeze the central site.
+gstate = gillespie.grid_state(  np.array([1, 0.01,20.]), L , 420)
+# gstate.freeze_site(L//2, L//2)#freeze the central site.
 
 iter = 0
 while(True):
