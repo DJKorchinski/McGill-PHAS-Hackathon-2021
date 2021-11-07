@@ -1,4 +1,3 @@
-import gillespy2 as gp  
 import numpy as np 
 import matplotlib.pyplot as plt 
 import sys
@@ -22,21 +21,26 @@ def read_data(filename):
 
 def countN(dat,bsize):
     result=np.add.reduceat(np.add.reduceat(dat,np.arange(0,dat.shape[0],bsize),axis=0),np.arange(0,dat.shape[1],bsize),axis=1)
-    N=np.count_nonzero(result)
-    return N#,result
+    tot_zero=np.count_nonzero(result==0)
+    tot_full=np.count_nonzero(result==bsize*bsize)
+    N=int(len(result)**2)-tot_zero-tot_full
+    N2=np.count_nonzero(result)
+    return N,N2#,result
 
 def getD0(N,bsize):
     return np.log(N)/np.log(1/bsize)
 
 def getD0_tot(dat):
-    pow2=np.log2(dat.shape[0])
-    scl=np.arange(0,pow2)
-    bsize=np.array(dat.shape[0]/2**scl,dtype=int)
+    #pow2=np.log2(dat.shape[0])
+    #scl=np.arange(0,pow2)
+    #bsize=np.array(dat.shape[0]/2**scl,dtype=int)
+    bsize=np.asarray([1,2,3,5,8,13,21,34,55,89,144]) #233
     Ns=np.empty_like(bsize)
+    Ns2=np.empty_like(bsize)
     for i in range(len(bsize)):
-        Ns[i]=countN(dat,bsize[i])
+        Ns[i],Ns2[i]=countN(dat,bsize[i])
     D0s=getD0(Ns,bsize)
-    return D0s, Ns, bsize
+    return D0s, Ns, Ns2, bsize
 
 def cutDat(cutv,dat):
     centerPix=int(dat.shape[0]/2)
@@ -50,17 +54,33 @@ def cutDat(cutv,dat):
 
 dat=read_data(sys.argv[1])
 
-print(sys.argv)
+#print(sys.argv)
 
 if sys.argv[2]=='True':
     print('in loop')
     dat=cutDat(int(sys.argv[3]),dat)
 
-d,n,L=getD0_tot(dat)
+d,n,n2,L=getD0_tot(dat)
 
-plt.plot(np.log(n),np.log(1/L))
+slopevals=(np.log(n[0:-1])-np.log(n[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
+print('slope (edges)=',slopevals)
+
+slopevals2=(np.log(n2[0:-1])-np.log(n2[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
+print('slope (cover)=',slopevals2)
+
+p=np.polyfit(np.log(1/L),np.log(n),1)
+print('Edges deg',p)
+
+p2=np.polyfit(np.log(1/L),np.log(n2),1)
+print('Cover deg',p2)
+
+plt.imshow(dat)
 plt.show()
 
-slopevals=(np.log(n[0:-2])-np.log(n[-1]))/(np.log(1/L[0:-2])-np.log(1/L[-1]))
+plt.plot(np.log(1/L),np.log(n),label='Edges')
+plt.plot(np.log(1/L),np.log(n2),label='Cover')
+#plt.plot(np.log(1/L),np.log(1/L)*p[0]+p[1],label='Edge BF')
+#plt.plot(np.log(1/L),np.log(1/L)*p2[0]+p2[1],label='Cover BF')
+plt.legend()
+plt.show()
 
-print('slope=',slopevals)
