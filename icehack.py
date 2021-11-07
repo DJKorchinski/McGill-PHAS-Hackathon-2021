@@ -31,6 +31,8 @@ def getD0(N,bsize):
     return np.log(N)/np.log(1/bsize)
 
 def getD0_tot(dat):
+    ##I CHANGED THIS EVRYTHING BROKE :()
+    #UNCOMMENT NEXT THREE TO GET BACK TO POWERS OF TWO
     #pow2=np.log2(dat.shape[0])
     #scl=np.arange(0,pow2)
     #bsize=np.array(dat.shape[0]/2**scl,dtype=int)
