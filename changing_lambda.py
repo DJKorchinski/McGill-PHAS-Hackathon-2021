@@ -33,7 +33,7 @@ def evolving_lambda_sim(lam3_init,lam2_init,t_interval=1e-3,L=128,A=20,m=1,seed=
         if(tcumulative > t_interval):
             tcumulative = 0.
             times.append(gstate.t)
-            areas.append([np.sum(gstate.state == i ) for i in range(2)])
+            areas.append([np.sum(gstate.state == i ) for i in range(3)])
             states.append(np.array(gstate.state))
 
         if(dt ==0):

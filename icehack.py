@@ -50,37 +50,64 @@ def cutDat(cutv,dat):
     print(out.shape)
     return out
 
-#filename='identity512.npy'
 
-dat=read_data(sys.argv[1])
-
-#print(sys.argv)
-
-if sys.argv[2]=='True':
-    print('in loop')
-    dat=cutDat(int(sys.argv[3]),dat)
-
-d,n,n2,L=getD0_tot(dat)
-
-slopevals=(np.log(n[0:-1])-np.log(n[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
-print('slope (edges)=',slopevals)
-
-slopevals2=(np.log(n2[0:-1])-np.log(n2[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
-print('slope (cover)=',slopevals2)
-
-p=np.polyfit(np.log(1/L),np.log(n),1)
-print('Edges deg',p)
-
-p2=np.polyfit(np.log(1/L),np.log(n2),1)
-print('Cover deg',p2)
-
-plt.imshow(dat)
+import gillespie
+L = 512
+gstate = gillespie.grid_state(  np.array([1, 0.01,20]), L, 420)
+gillespie.step_state_gstate(L**2,gstate)
+data = gstate.state 
+import matplotlib.pyplot as plt 
+plt.imshow(data)
 plt.show()
 
-plt.plot(np.log(1/L),np.log(n),label='Edges')
-plt.plot(np.log(1/L),np.log(n2),label='Cover')
-#plt.plot(np.log(1/L),np.log(1/L)*p[0]+p[1],label='Edge BF')
-#plt.plot(np.log(1/L),np.log(1/L)*p2[0]+p2[1],label='Cover BF')
+Ns = []
+Ls = np.arange(16,2,-1)
+for L in Ls:
+    print(L) 
+    Ns.append(countN(data==2,L)[0])
+# plt.plot(Ls, Ns)
+# plt.show()
+plt.plot(np.log(Ls),np.log(Ns),'o')
+coeffs = np.polyfit(np.log(Ls), np.log(Ns), 1)
+slope = coeffs[0]
+plt.plot(np.log(Ls),np.log(Ls**coeffs[0]) + (coeffs[1]),label = 'Fit, $d_f$ = %g'%slope)
 plt.legend()
 plt.show()
+# import pdb; pdb.set_trace()
+
+
+if(False):
+    #filename='identity512.npy'
+
+    dat=read_data(sys.argv[1])
+
+    #print(sys.argv)
+
+    if sys.argv[2]=='True':
+        print('in loop')
+        dat=cutDat(int(sys.argv[3]),dat)
+
+    d,n,n2,L=getD0_tot(dat)
+
+    slopevals=(np.log(n[0:-1])-np.log(n[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
+    print('slope (edges)=',slopevals)
+
+    slopevals2=(np.log(n2[0:-1])-np.log(n2[1:]))/(np.log(1/L[0:-1])-np.log(1/L[1:]))
+    print('slope (cover)=',slopevals2)
+
+    p=np.polyfit(np.log(1/L),np.log(n),1)
+    print('Edges deg',p)
+
+    p2=np.polyfit(np.log(1/L),np.log(n2),1)
+    print('Cover deg',p2)
+
+    plt.imshow(dat)
+    plt.show()
+
+    plt.plot(np.log(1/L),np.log(n),label='Edges')
+    plt.plot(np.log(1/L),np.log(n2),label='Cover')
+    #plt.plot(np.log(1/L),np.log(1/L)*p[0]+p[1],label='Edge BF')
+    #plt.plot(np.log(1/L),np.log(1/L)*p2[0]+p2[1],label='Cover BF')
+    plt.legend()
+    plt.show()
 
