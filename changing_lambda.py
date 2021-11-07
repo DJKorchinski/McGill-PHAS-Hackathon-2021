@@ -34,8 +34,6 @@ def evolving_lambda_sim(lam3_init,lam2_init,L=128):
     t2 = time.time()
     print('took: ',t2-t1)
     print('frozen: ',np.sum(gstate.state == gillespie.FROZEN_STATE),'evaporated: ' ,np.sum(gstate.state == gillespie.EVAPORATED_STATE), 'liquid: ',np.sum(gstate.state == gillespie.LIQUID_STATE))
-
-    plt.imshow(gstate.state)
-    plt.show()
+    return gstate.state
 
 evolving_lambda_sim(60,0.01)
