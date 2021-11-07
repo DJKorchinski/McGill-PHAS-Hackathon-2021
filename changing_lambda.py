@@ -7,11 +7,11 @@ import time
 
 
 #gstate.freeze_site(L//2, L//2)#freeze the central site.
-def evolving_lambda_sim(lam3_init,lam2_init,L=128):
+def evolving_lambda_sim(lam3_init,lam2_init,L=128,A=20,m=1):
     t1 = time.time()
-    m = 1
+    # m = 1
     iter = 0
-    A =20
+    # A =20
     lam1 = m/lam3_init
     gstate = gillespie.grid_state(  np.array([lam1, lam2_init,lam3_init]), L , 420)
     lambdas = gstate.lambdas
