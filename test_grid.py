@@ -17,6 +17,6 @@ while(True):
         break 
 
 print('frozen: ',np.sum(gstate.state == gillespie.FROZEN_STATE),'evaporated: ' ,np.sum(gstate.state == gillespie.EVAPORATED_STATE), 'liquid: ',np.sum(gstate.state == gillespie.LIQUID_STATE))
-import pdb; pdb.set_trace()
-plt.imshow(gstate.state)
-plt.show()
+
+# plt.imshow(gstate.state)
+# plt.show()
