@@ -44,7 +44,6 @@ def evolving_lambda_sim(lam3_init,lam2_init,t_interval=1e-3,L=128,A=20,m=1,seed=
             break
 
     t2 = time.time()
-
     if(plot_final):
         print('took: ',t2-t1)
         print('frozen: ',np.sum(gstate.state == gillespie.FROZEN_STATE),'evaporated: ' ,np.sum(gstate.state == gillespie.EVAPORATED_STATE), 'liquid: ',np.sum(gstate.state == gillespie.LIQUID_STATE))
