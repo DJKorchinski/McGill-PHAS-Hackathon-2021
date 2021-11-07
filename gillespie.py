@@ -93,27 +93,21 @@ def evaporate(liquid_site_index,state,num_frozen_neighbours,liquid_sites_mask,st
 
     
 def step_state_gstate(numsteps,gstate):
-    dt,num_liquid,num_freeze_attempts = step_state_numba(gstate.rng,numsteps,gstate.lambdas,gstate.state,gstate.num_frozen_neighbours,\
+    u3s = gstate.rng.random((numsteps,3))
+    dt,num_liquid,num_freeze_attempts = step_state_numba(u3s,numsteps,gstate.lambdas,gstate.state,gstate.num_frozen_neighbours,\
         gstate.ind_to_state_ij,gstate.state_ij_to_ind, gstate.liquid_sites_mask, gstate.liquid_sites_indexes, \
-            gstate.num_liquid_sites, gstate.num_freeze_attempts)
+            gstate.L, gstate.num_liquid_sites, gstate.num_freeze_attempts)
     gstate.t+=dt 
     gstate.num_liquid_sites = num_liquid  
     gstate.num_freeze_attempts = num_freeze_attempts
-    #check for safety: 
-    # if(not np.sum(gstate.state == 0) == num_liquid):
-    #     print('broken!')
-    # if(not (num_freeze_attempts == np.sum(gstate.num_frozen_neighbours[gstate.state_ij_to_ind[gstate.liquid_sites_mask]]))):
-    #     print('borked 2')
     return dt
 
 # @numba.njit(cache=True)
-# @numba.njit(cache=True)
-def step_state_numba(rng,numsteps, lambdas,state, num_frozen_neighbours, ind_to_state_ij, state_ij_to_ind,liquid_sites_mask,liquid_inds,i_num_liquid,i_num_freeze_attempts):
+@numba.njit(cache=True)
+def step_state_numba(u3s,numsteps, lambdas,state, num_frozen_neighbours, ind_to_state_ij, state_ij_to_ind,liquid_sites_mask,liquid_inds,L,i_num_liquid,i_num_freeze_attempts):
     #lambda 1 and 2 are the spontaneous rates for evaporation and freezing respectivly.
     #lambda 3 are the 
     t_incr = 0
-    L = np.shape(state)[0]
-    N = np.size(state)
     num_liquid = i_num_liquid
     num_freeze_attempts = i_num_freeze_attempts
     for i in range(numsteps):
@@ -136,8 +130,8 @@ def step_state_numba(rng,numsteps, lambdas,state, num_frozen_neighbours, ind_to_
             #everything is frozen or evaporated.
             break
         
-        t_next = np.log(1-rng.random()) / rate
-        activation_u = rng.random() 
+        t_next = np.log(1-u3s[i,0]) / rate
+        activation_u = u3s[i,1]
         activation_type = -1
         while(activation_u > 0):
             activation_type += 1
@@ -145,7 +139,7 @@ def step_state_numba(rng,numsteps, lambdas,state, num_frozen_neighbours, ind_to_
         
         #then, do the activation. For types 0,1 it's a spontaneous freezing / evaporation event. 
         if(activation_type == 0 or activation_type == 1):
-            liquid_index = rng.integers(num_liquid)
+            liquid_index = int(np.floor(u3s[i,2] * num_liquid))
             # index = liquid_inds[]
             # ij = ind_to_state_ij[index]
             
@@ -156,7 +150,7 @@ def step_state_numba(rng,numsteps, lambdas,state, num_frozen_neighbours, ind_to_
                 num_liquid,num_freeze_attempts = freeze(liquid_index,state,num_frozen_neighbours,liquid_sites_mask,ind_to_state_ij,state_ij_to_ind,liquid_inds,L,num_liquid,num_freeze_attempts)
         else: 
             #let's find the frozen site:
-            attempt_number = rng.integers(num_freeze_attempts)
+            attempt_number =  int(np.floor(u3s[i,2] * num_freeze_attempts)) #rng.integers(num_freeze_attempts)
             # import pdb; pdb.set_trace()
 
             # liquid_ijs = ind_to_state_ij[liquid_inds[:i_num_liquid]]
