@@ -111,14 +111,6 @@ def step_state_numba(u3s,numsteps, lambdas,state, num_frozen_neighbours, ind_to_
     num_liquid = i_num_liquid
     num_freeze_attempts = i_num_freeze_attempts
     for i in range(numsteps):
-        #finding hte frozen sites, and number of edges along which frost can freeze other sites. Could be cached to speed this up.
-        # liquid_sites_mask = (state == LIQUID_STATE)
-        
-        # Nrange = np.arange(N)
-        # liquid_sites_indexes = Nrange[ state_ij_to_ind[liquid_sites_mask] ]
-        # num_liquid = np.sum(liquid_sites_mask)
-        # num_freeze_attempts = np.sum(num_frozen_neighbours[liquid_sites_mask])
-
         #calculating the rates 
         rates = np.zeros(3)
         rates[0] =  lambdas[0] * num_liquid
@@ -130,7 +122,7 @@ def step_state_numba(u3s,numsteps, lambdas,state, num_frozen_neighbours, ind_to_
             #everything is frozen or evaporated.
             break
         
-        t_next = np.log(1-u3s[i,0]) / rate
+        t_next = -np.log(1-u3s[i,0]) / rate
         activation_u = u3s[i,1]
         activation_type = -1
         while(activation_u > 0):
