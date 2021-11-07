@@ -5,8 +5,8 @@ from multiprocessing import Pool
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
 #space to search over
-N = 10
-lam2 = np.linspace(0.1,1,N)
+N = 100
+lam2 = np.linspace(0.01,0.2,N)
 lam3 = np.linspace(0.1,100,N)
 
 
@@ -29,7 +29,7 @@ def create_gstate(X):
     return gstate.state
 
 my_gstates=np.empty((N,N,128,128),dtype=float)
-P = Pool(4)
+P = Pool(48)
 for i in range(N):
     #generate X_array to feed into create_gstate
     x_arr = []

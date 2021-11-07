@@ -24,10 +24,21 @@ def cluster_counter(gs):
         c_size.append(np.sum(labels==l))
     return np.max(c_size)
 
-#lets test the clustering
-gstate = create_gstate([0.001,100])
-plt.figure()
-plt.imshow(gstate)
-plt.colorbar()
-print(cluster_counter(gstate))
+#load my gstates
+states = np.load("grid_search.npy",allow_pickle=1).tolist()
+#need to do cluster size counting
+lam2 = states['lam2']
+lam3 = states['lam3']
+g = states['g']
+max_cluster = np.empty((len(lam2),len(lam3)))
+p = Pool(50)
+for i in range(len(lam2)):
+    gs_arr = []
+    for j in range(len(lam3)):
+        gs_arr.append(g[i,j,:,:])
+    # for i in gs_arr:
+        # print(cluster_counter(i))
+    max_cluster[i,:] = p.map(cluster_counter,gs_arr)
+    print(i)
+p.close()
 import pdb; pdb.set_trace()
