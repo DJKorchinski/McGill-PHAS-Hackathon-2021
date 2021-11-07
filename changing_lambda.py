@@ -51,7 +51,7 @@ def evolving_lambda_sim(lam3_init,lam2_init,t_interval=1e-3,L=128,A=20,m=1,seed=
         plt.imshow(gstate.state)
         plt.show()
 
-    output_dic = { 'times':times, 'states':states, 'areas':areas }
+    output_dic = { 'final_gstate':gstate, 'times':times, 'states':states, 'areas':areas }
     return output_dic
 
 if(__name__ == '__main__'):
