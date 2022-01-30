@@ -26,7 +26,7 @@ def cluster_counter(gs):
     return np.max(c_size),n,c_size
 
 #load my gstates
-states = np.load("grid_search_2.npy",allow_pickle=1).tolist()
+states = np.load("grid_search.npy",allow_pickle=1).tolist()
 #need to do cluster size counting
 lam2 = states['lam2']
 lam3 = states['lam3']
