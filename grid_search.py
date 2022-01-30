@@ -35,7 +35,7 @@ def cluster_counter(gs):
 def create_gstate(X):
     # assign lam2 and lam3
     lam2, lam3, L, seed = X
-    print(X)
+    # print(X)
     gstate = gillespie.grid_state(np.array([1, lam2, lam3]), L, seed)
     i = 0
     while True:
@@ -46,15 +46,15 @@ def create_gstate(X):
         if i > L * L:
             print("TOO MANY ITERS, DEBUG THIS GARBAGE!")
             break
-    print(
-        "frozen: ",
-        np.sum(gstate.state == gillespie.FROZEN_STATE),
-        "evaporated: ",
-        np.sum(gstate.state == gillespie.EVAPORATED_STATE),
-        "liquid: ",
-        np.sum(gstate.state == gillespie.LIQUID_STATE),
-        X,
-    )
+    # print(
+    #     "frozen: ",
+    #     np.sum(gstate.state == gillespie.FROZEN_STATE),
+    #     "evaporated: ",
+    #     np.sum(gstate.state == gillespie.EVAPORATED_STATE),
+    #     "liquid: ",
+    #     np.sum(gstate.state == gillespie.LIQUID_STATE),
+    #     X,
+    # )
     # calculate clusters
     # print(gstate.state)
     max_c, n_c, c_size = cluster_counter(gstate.state)
@@ -64,15 +64,15 @@ def create_gstate(X):
 if __name__ == "__main__":
     # space to search over
     N = 10
-    lam2s = np.geomspace(0.01, 0.2, N)
-    lam3s = np.geomspace(0.01, 0.02, N)
-    Ls = np.geomspace(32, 1024, 6, True, dtype=int)
+    lam2s = np.geomspace(0.01, 0.05, N)
+    lam3s = np.geomspace(0.01, 20, N)
+    Ls = np.geomspace(32, 1024, 3, True, dtype=int)
     Nrep = 10
     seeds = np.arange(Nrep)*420+1
 
     pm = param_manager([lam2s, lam3s, Ls, seeds])
 
-    P = Pool(48)
+    P = Pool(72)
     param_array = [pm.get_params(i) for i in range(pm.REP_TOTAL)]
     cluster_sizes = P.map(create_gstate,param_array)
     output_dic = {
@@ -83,5 +83,4 @@ if __name__ == "__main__":
         "cluster_sizes": cluster_sizes,
     }
 
-    with open("data/simulation_01.dat", "wb") as fh:
-        pickle.dump(fh, output_dic)
+    np.save('cluster_size',output_dic)
