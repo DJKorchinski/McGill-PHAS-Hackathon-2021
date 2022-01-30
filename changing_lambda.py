@@ -4,7 +4,7 @@ import gillespie
 import numpy as np
 import matplotlib.pyplot  as plt
 import time
-
+import matplotlib
 
 #gstate.freeze_site(L//2, L//2)#freeze the central site.
 def evolving_lambda_sim(lam3_init,lam2_init,t_interval=1e-3,L=128,A=20,m=1,seed=1337,plot_final = True):
@@ -47,11 +47,16 @@ def evolving_lambda_sim(lam3_init,lam2_init,t_interval=1e-3,L=128,A=20,m=1,seed=
     if(plot_final):
         print('took: ',t2-t1)
         print('frozen: ',np.sum(gstate.state == gillespie.FROZEN_STATE),'evaporated: ' ,np.sum(gstate.state == gillespie.EVAPORATED_STATE), 'liquid: ',np.sum(gstate.state == gillespie.LIQUID_STATE))
-        plt.imshow(gstate.state)
+        cmap = matplotlib.colors.LinearSegmentedColormap.from_list("", ["black","lightblue"])
+
+        plt.pcolormesh(gstate.state,cmap=cmap)
+        plt.tight_layout(pad=0,w_pad=0,h_pad=0)
+        plt.tick_params(axis='x',which='both',bottom=False,top=False,right=False,left=False,labelbottom=False,labelleft=False,labelright=False)
+        plt.tick_params(axis='y',which='both',bottom=False,top=False,right=False,left=False,labelbottom=False,labelleft=False,labelright=False)
         plt.show()
 
     output_dic = { 'final_gstate':gstate, 'times':times, 'states':states, 'areas':areas }
     return output_dic
 
 if(__name__ == '__main__'):
-    evolving_lambda_sim(20,0.01)
+    evolving_lambda_sim(10,0.025,L=256)
