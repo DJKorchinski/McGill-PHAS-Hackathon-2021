@@ -4,12 +4,8 @@ import numpy as np
 from multiprocessing import Pool
 from sklearn.cluster import DBSCAN
 import matplotlib.pyplot as plt
-from changing_lambda import evolving_lambda_sim
-
-# space to search over
-N = 100
-lam2 = np.linspace(0.01, 0.2, N)
-lam3 = np.linspace(0.1, 100, N)
+import pickle
+from dklib.param_manager import param_manager
 
 
 def cluster_counter(gs):
@@ -19,6 +15,9 @@ def cluster_counter(gs):
     # convert to array
     ind = np.array(ind).T
     # do my dbscan
+    # print(ind)
+    # plt.imshow(gs)
+    # plt.show()
     clustering = DBSCAN(eps=1, min_samples=1).fit(ind)
     labels = clustering.labels_
     # make some plots of clusters
@@ -36,6 +35,7 @@ def cluster_counter(gs):
 def create_gstate(X):
     # assign lam2 and lam3
     lam2, lam3, L, seed = X
+    print(X)
     gstate = gillespie.grid_state(np.array([1, lam2, lam3]), L, seed)
     i = 0
     while True:
@@ -56,23 +56,32 @@ def create_gstate(X):
         X,
     )
     # calculate clusters
-    max_c, n_c, c_size = cluster_counter(gstate)
+    # print(gstate.state)
+    max_c, n_c, c_size = cluster_counter(gstate.state)
 
     return c_size
 
+if __name__ == "__main__":
+    # space to search over
+    N = 10
+    lam2s = np.geomspace(0.01, 0.2, N)
+    lam3s = np.geomspace(0.01, 0.02, N)
+    Ls = np.geomspace(32, 1024, 6, True, dtype=int)
+    Nrep = 10
+    seeds = np.arange(Nrep)*420+1
 
-def create_gstate_2(X):
-    lam2, lam3 = X
-    return evolving_lambda_sim(lam2, lam3)
+    pm = param_manager([lam2s, lam3s, Ls, seeds])
 
+    P = Pool(48)
+    param_array = [pm.get_params(i) for i in range(pm.REP_TOTAL)]
+    cluster_sizes = P.map(create_gstate,param_array)
+    output_dic = {
+        "lam2s": lam2s,
+        "lam3s": lam3s,
+        "Ls": Ls,
+        "param_manager": pm,
+        "cluster_sizes": cluster_sizes,
+    }
 
-my_gstates = np.empty((N, N, 128, 128), dtype=float)
-P = Pool(48)
-for i in range(N):
-    # generate X_array to feed into create_gstate
-    x_arr = []
-    for j in range(N):
-        x_arr.append((lam2[i], lam3[j]))
-    my_gstates[i, :, :, :] = P.map(create_gstate_2, x_arr)
-
-np.save("grid_search_2", {"lam2": lam2, "lam3": lam3, "g": my_gstates})
+    with open("data/simulation_01.dat", "wb") as fh:
+        pickle.dump(fh, output_dic)
