@@ -19,6 +19,7 @@ def B(Svals,L):
     #sumSvalssq=sumSvalssq/len(Svals)
 
     B=g*sumSvalssq/sumSvals**2
+    return B
 
 
 
